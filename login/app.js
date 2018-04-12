@@ -8,9 +8,11 @@ MongoClient.connect('mongodb://localhost:27017/animals', (err, client)=>{
 
     const db = client.db('animals');
 
+    const object = new ObjectID();
+
     //Creating Data
 
-    db.collection('mammals').insertOne({
+/*     db.collection('mammals').insertOne({
 
         name: 'horse',
         legs: '4',
@@ -36,13 +38,37 @@ MongoClient.connect('mongodb://localhost:27017/animals', (err, client)=>{
     db.collection('mammals').findOneAndUpdate({
 
         __id: new ObjectId("5ace3714ce64ed3ad8c91508")
-    } , {
+   
+    }, 
 
-        $set: {name: 'updated'}
-    }
+        {$set: {name: 'updated'}}
 
-);
+    ).then(result =>{
 
+        console.log('result');
+
+    }).catch(err =>{
+
+        console.log('err - content not updated');
+    }); */
+
+//The above 'then()' and 'catch()' statement is known as a promise
+
+//DELETING DATA:
+
+/* db.collection('mammals').deleteMany({name: 'Edwin Diaz'});
+
+db.collection('mammals').deleteOne({name: 'Edwin Diaz'});
+
+db.collection('mammals').deleteAndFind({name: 'Edwin Diaz'}); */
+
+db.collection('mammals').findOneAndDelete({
+
+    id: new ObjectId("5ace3714ce64ed3ad8c91508")
+}).then(result =>{
+
+    console.log(result)
+});
 
 });
 
