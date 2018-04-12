@@ -50,9 +50,50 @@ app.get('/users', (req, res)=>{
     });
 });
 
+app.patch('/users/:id', (req, res)=>{
+
+    const id = req.params.id;
+
+    const firstName = req.body.firstName;
+
+    User.findByIdAndUpdate(id, {$set: {firstName: firstName }}, {new: true})
+    .then(savedUser=>{
+
+        res.send('User saved by patch');
+
+        console.log('First Name Updated - Mug')
+    });
+
+});
+
+//  new: true gives the new updated object
+// Using PATCH, one can update only part of the data
+// If you use POST, you can overwrite the entire object:
+
+app.put('/users/:id', (req, res)=>{
+
+    User.findOne({_id: req.params.id}).then(user=>{
+        user.firstName = req.body.firstName;
+        user.lastName = req.body.lastName;
+
+        user.save().then(userSaved=>{
+            res.send(userSaved);
+        }).catch(err=>{console.log(err)});
+    });
+});
+
+app.delete('/users/:id', (req, res)=>{
+
+    User.remove({_id: req.params.id}).then(userRemoved=>{
+
+        res.send(`User ${userRemoved.firstName} removed`);
+    });
+});
+
+
+
+
 const port = 3000 || process.env.PORT;
-
-
 
 app.listen(port, ()=>{
 

@@ -1,96 +1,61 @@
-const MongoClient = require('mongodb').MongoClient;
+const express = require('express');
+const app = express();
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const User = require('./models/User');
+const bcrypt = require('bcryptjs');
 
-MongoClient.connect('mongodb://localhost:27017/animals', (err, client)=>{
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
-    if(err) throw err;
+mongoose.Promise = global.Promise;
 
-    console.log('Connected');
+mongoose.connect('mongodb://127.0.0.1/login', ()=>{
 
-    const db = client.db('animals');
+   console.log('connected');
+});
 
-    const object = new ObjectID();
+app.post('/register', (req, res)=>{
+    const newUser = new User();
+    newUser.email = req.body.email;
+    newUser.password = req.body.password;
 
-    //Creating Data
+    bcrypt.genSalt(10, (err, salt)=>{
 
-/*     db.collection('mammals').insertOne({
+        bcrypt.hash(newUser.password, salt, (err, hash)=>{
+           if(err) return err;
+            newUser.password = hash;
+            newUser.save().then(userSaved=>{
+                res.send('USER SAVED');
+            }).catch(err=>{
+                res.send('User was not saved because ....' + err);
+            });
+        });
+    });
+});
 
-        name: 'horse',
-        legs: '4',
-        mantra: '4 legs good, 2 legs baaaad'
-    }, (err, result)=>{
+app.post('/login', (req, res)=>{
 
-        if(err) return console.log(err);
+    User.findOne({email: req.body.email}).then(user=>{
 
-        console.log('Inserted');
+        if(user){
+            bcrypt.compare(req.body.password, user.password, (err, matched)=>{
+                if(err) return err;
+                    if(matched){
+                        res.send('Logged In')
+
+                    }else{
+                        res.send('Unable to login, please check your details and try again.')
+
+                    }
+            });
+        }
     });
 
-    //Reading Data
-
-    db.collection('mammals').find().toArray(function (err, result) {
-        if (err) throw err
-    
-        console.log(result)
-      });
-
-
-    //Updating Data
-
-    db.collection('mammals').findOneAndUpdate({
-
-        __id: new ObjectId("5ace3714ce64ed3ad8c91508")
-   
-    }, 
-
-        {$set: {name: 'updated'}}
-
-    ).then(result =>{
-
-        console.log('result');
-
-    }).catch(err =>{
-
-        console.log('err - content not updated');
-    }); */
-
-//The above 'then()' and 'catch()' statement is known as a promise
-
-//DELETING DATA:
-
-/* db.collection('mammals').deleteMany({name: 'Edwin Diaz'});
-
-db.collection('mammals').deleteOne({name: 'Edwin Diaz'});
-
-db.collection('mammals').deleteAndFind({name: 'Edwin Diaz'}); */
-
-db.collection('mammals').findOneAndDelete({
-
-    id: new ObjectId("5ace3714ce64ed3ad8c91508")
-}).then(result =>{
-
-    console.log(result)
 });
 
+app.listen(3300, ()=>{
+
+    console.log('listening on port 3300');
+
 });
-
-
-
-
-
-
-
-
-
-
-//const MongoClient = require('mongodb').MongoClient
-
-//MongoClient.connect('mongodb://localhost:27017/animals', function (err, db) {
-  //  if (err) throw err;
-
-    //console.log('Connected');
-
-    // db.collection('mammals').find().toArray(function (err, result) {
-    //  if (err) throw err;
-
-    //   console.log(result)
-    //  });
-//});
