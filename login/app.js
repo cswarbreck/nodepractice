@@ -15,6 +15,7 @@ mongoose.connect('mongodb://127.0.0.1/login', ()=>{
    console.log('connected');
 });
 
+
 app.post('/register', (req, res)=>{
     const newUser = new User();
     newUser.email = req.body.email;
